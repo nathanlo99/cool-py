@@ -114,3 +114,57 @@ class BinaryExpression(ParserBase):
         return BinaryExpression._op_precedence[token.value]
 
 Expression = BinaryExpression
+
+class AttributeDeclExpression(ParserBase):
+    def parse(self):
+        # <id> : <type> [ <- <expr> ];
+        attribute_name = self.pop_expecting([TokenType.identifier]).value
+        self.pop_expecting([TokenType.colon])
+        attribute_type = self.pop_expecting([TokenType.identifier]).value
+        try:
+            self.token_stack.push_cursor()
+            self.pop_expecting([TokenType.left_arrow])
+            value = Expression(self.token_stack).node
+        except ParseError:
+            self.token_stack.pop_cursor()
+            value = "void"
+        self.pop_expecting([TokenType.semicolon])
+        return AttributeDeclNode(attribute_name, attribute_type, value)
+
+class MethodDeclExpression(ParserBase):
+    def parse(self):
+        # <id>(<id> : <type>[,])* : { <expr> };
+        pass
+
+
+class ClassDeclExpression(ParserBase):
+    def parse(self):
+        self.pop_expecting([TokenType.keyword_class])
+        class_name = self.pop_expecting([TokenType.identifier]).value
+        if self.token_stack.peek().type is TokenType.keyword_inherits:
+            self.token_stack.pop()
+            super_class = self.pop_expecting([TokenType.identifier]).value
+        else:
+            super_class = "Object"
+        print("===== SUPER CLASS IS {} =====".format(super_class))
+        self.pop_expecting([TokenType.left_brace])
+        features = []
+        while True:
+            print(features)
+            try:
+                print("===== TRYING TO PARSE ATTRIBUTE =====")
+                self.token_stack.push_cursor()
+                features.append(AttributeDeclExpression(self.token_stack).node)
+                print(features)
+            except ParseError:
+                self.token_stack.pop_cursor()
+                break
+            try:
+                self.token_stack.push_cursor()
+                features.append(MethodDeclExpression(self.token_stack).node)
+            except ParseError:
+                self.token_stack.pop_cursor()
+                break
+        self.pop_expecting([TokenType.right_brace])
+        self.pop_expecting([TokenType.semicolon])
+        return ClassDeclNode(class_name, super_class, features)

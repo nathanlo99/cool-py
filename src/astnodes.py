@@ -1,16 +1,22 @@
 
 from collections import namedtuple
 
-# class ClassDecl(namedtuple("ClassDecl", ("classname", "features"))):
-#     def to_dict(self):
-#         return {
-#             "type": "ClassDecl",
-#             "features": self.features.to_dict(),
-#         }
-#
-# class FeatureList(namedtuple("FeatureList", "features")):
-#     def to_dict(self):
-#         return repr(self.features)
+class ClassDeclNode(namedtuple("ClassDecl", ("classname", "super", "features"))):
+    def to_dict(self):
+        return {
+            "type": "ClassDecl",
+            "super": self.super,
+            "features": self.features,
+        }
+
+class AttributeDeclNode(namedtuple("AttributeDeclNode", ("name", "type", "value"))):
+    def to_dict(self):
+        return {
+            "type": "AttributeDeclNode",
+            "name": self.name,
+            "type": self.type,
+            "value": self.value,
+        }
 
 class BinaryOpNode(namedtuple("BinaryOpNode", ("lhs", "op", "rhs"))):
     def to_dict(self):
@@ -35,5 +41,3 @@ class IntegerNode(namedtuple("IntegerNode", "value")):
             "type": "IntegerNode",
             "value": self.value
         }
-
-json.dumps(Expression(TokenStack(lex('4 * 5 + 3'))).node.to_dict(), sort_keys=True, indent=4, separators=(',', ': '))

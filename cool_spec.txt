@@ -1,7 +1,7 @@
 Grammar specification:
 
-class_decl = class <type> [inherits <type>] { <feature_list> };
-feature_list = (attribute_stmt | method_decl)*
+class_decl = class <type> [inherits <type>] { feature* };
+feature = attribute_stmt | method_decl
 
 attribute_stmt  = <id> : <type> [ <- <expr> ];
 method_decl = <id>(<id> : <type>[,])* : { <expr> };
