@@ -6,7 +6,7 @@ class AssignmentNode(namedtuple("AssignmentNode", ("id", "value"))):
         return {
             "type": "AssignmentNode",
             "id": self.id,
-            "value": self.value,
+            "value": self.value.to_dict() if type(self.value) is not str else "void",
         }
 
 class SelfDispatchNode(namedtuple("SelfDispatchNode", ("caller", "method_name", "arguments"))):
@@ -16,6 +16,24 @@ class SelfDispatchNode(namedtuple("SelfDispatchNode", ("caller", "method_name", 
             "caller": self.caller,
             "method_name": self.method_name,
             "arguments": self.arguments,
+        }
+
+class UnqualifiedDispatchExpression(namedtuple("UnqualifiedDispatch", ("method_name", "arguments"))):
+    def to_dict(self):
+        return {
+            "type": "UnqualifiedDispatch",
+            "name": self.method_name,
+            "arguments": self.arguments,
+        }
+
+class MethodDeclNode(namedtuple("MethodDecl", ("name", "parameters", "return_type", "statement"))):
+    def to_dict(self):
+        return {
+            "type": "MethodDecl",
+            "name": self.name,
+            "parameters": self.parameters,
+            "return_type": self.return_type,
+            "statement": self.statement.to_dict()
         }
 
 class ClassDeclNode(namedtuple("ClassDecl", ("classname", "super", "features"))):
@@ -33,6 +51,13 @@ class AttributeDeclNode(namedtuple("AttributeDeclNode", ("name", "type", "value"
             "name": self.name,
             "attr_type": self.type,
             "value": self.value.to_dict() if self.value is not "void" else "void",
+        }
+
+class VariableReference(namedtuple("VariableReference", "value")):
+    def to_dict(self):
+        return  {
+            "type": "VariableReference",
+            "value": self.value,
         }
 
 class BinaryOpNode(namedtuple("BinaryOpNode", ("lhs", "op", "rhs"))):

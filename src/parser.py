@@ -54,8 +54,7 @@ class ParserBase(object):
 
 class IntegerLiteralExpression(ParserBase):
     def parse(self):
-        int_token = self.pop_expecting([TokenType.integer_literal])
-        return IntegerNode(int_token.value)
+        return IntegerNode(self.pop_expecting([TokenType.integer_literal]).value)
 
 class UnaryOpExpression(ParserBase):
     def parse(self):
@@ -128,18 +127,15 @@ Expression = BinaryExpression
 # isvoid_stmt = isvoid <expr>
 
 class AssignmentExpression(ParserBase):
-    def parse():
-        print("TRYING TO PARSE ASSIGNMENT")
+    def parse(self):
         name = self.pop_expecting([TokenType.identifier]).value
         self.pop_expecting([TokenType.left_arrow])
         value = Statement(self.token_stack).node
         return AssignmentNode(name, value)
 
 class SelfDispatchExpression(ParserBase):
-    def parse():
-        print("TRYING TO PARSE SELF DISPATCH")
-        caller = Expression(self.token_stack).node
-        print("CALLER: {}".format(caller))
+    def parse(self):
+        caller = Statement(self.token_stack).node
         self.pop_expecting([TokenType.dot])
         method_name = self.pop_expecting([TokenType.identifier]).value
         self.pop_expecting([TokenType.left_paren])
@@ -156,20 +152,45 @@ class SelfDispatchExpression(ParserBase):
         self.pop_expecting([TokenType.right_paren])
         return SelfDispatchNode(caller, method_name, arguments)
 
+class UnqualifiedDispatchExpression(ParserBase):
+    # TODO: Merge with SelfDispatchExpression
+    def parse(self):
+        method_name = self.pop_expecting([TokenType.identifier]).value
+        print("method_name: {}".format(method_name))
+        self.pop_expecting([TokenType.left_paren])
+        arguments = []
+        while True:
+            print("trying to find arguments #{}".format(len(arguments) + 1))
+            try:
+                self.token_stack.push_cursor()
+                if len(argments) is not 0:
+                    self.pop_expecting([TokenType.comma])
+                argument = Statement(self.token_stack).node
+                print("argument: {}".format(argument))
+                arguments.append(argument)
+                print("arguments: {}".format(arguments))
+            except ParseError:
+                self.token_stach.pop_cursor()
+                break
+        self.pop_expecting([TokenType.right_paren])
+        return UnqualifiedDispatchExpression(method_name, arguments)
+
 class StringLiteral(ParserBase):
     def parse(self):
-        value = self.pop_expecting([TokenType.string_literal])
-        return StringNode(value)
+        return StringNode(self.pop_expecting([TokenType.string_literal]))
+
+class VariableReference(ParserBase):
+    def parse(self):
+        value = self.pop_expecting([TokenType.identifier]).value
+        return VariableReference(value)
 
 class Statement(ParserBase):
-    types = [AssignmentExpression, SelfDispatchExpression, BinaryExpression, StringLiteral]
+    types = [StringLiteral, VariableReference, AssignmentExpression, UnqualifiedDispatchExpression, SelfDispatchExpression, BinaryExpression]
     def parse(self):
-        print("PARSING STATEMENT")
         for parser in self.types:
             try:
                 self.token_stack.push_cursor()
-                node = parser(self.token_stack).node
-                return node
+                return parser(self.token_stack).node
             except:
                 self.token_stack.pop_cursor()
         raise ParseError("Expected statement")
@@ -195,7 +216,6 @@ class MethodDeclExpression(ParserBase):
         # <id>(<id> : <type>[,])* : { <expr> };
         method_name = self.pop_expecting([TokenType.identifier]).value
         self.pop_expecting([TokenType.left_paren])
-        print("===== METHOD NAME: {} =====".format(method_name))
         parameters = []
         while True:
             try:
@@ -209,16 +229,14 @@ class MethodDeclExpression(ParserBase):
             except ParseError:
                 self.token_stack.pop_cursor()
                 break
-        print("PARAMETERS: {}".format(parameters))
         self.pop_expecting([TokenType.right_paren])
         self.pop_expecting([TokenType.colon])
         return_type = self.pop_expecting([TokenType.identifier]).value
-        print("RETURN TYPE: {}".format(return_type))
         self.pop_expecting([TokenType.left_brace])
-        print("GOT TO STATEMENT CALL")
         statement = Statement(self.token_stack).node
         self.pop_expecting([TokenType.right_brace])
         self.pop_expecting([TokenType.semicolon])
+        return MethodDeclNode(method_name, parameters, return_type, statement)
 
 class ClassDeclExpression(ParserBase):
     def parse(self):
@@ -229,7 +247,6 @@ class ClassDeclExpression(ParserBase):
             super_class = self.pop_expecting([TokenType.identifier]).value
         else:
             super_class = "Object"
-        print("===== SUPER CLASS IS {} =====".format(super_class))
         self.pop_expecting([TokenType.left_brace])
         features = []
         while True:
@@ -247,7 +264,6 @@ class ClassDeclExpression(ParserBase):
             except ParseError:
                 self.token_stack.pop_cursor()
             if not flag: break
-        print(features)
         self.pop_expecting([TokenType.right_brace])
         self.pop_expecting([TokenType.semicolon])
         return ClassDeclNode(class_name, super_class, features)
