@@ -1,0 +1,46 @@
+Grammar specification:
+
+class_decl = class <type> [inherits <type>] { <feature_list> };
+feature_list = (attribute_stmt | method_decl)*
+
+attribute_stmt  = <id> : <type> [ <- <expr> ];
+method_decl = <id>(<id> : <type>[,])* : { <expr> };
+
+assignment_stmt = <id> <- <expr>
+self_dispatch = <expr>.<id>(<expr>[,])*
+unqualified_dispatch = <id>(<expr>[,])*
+parent_dispatch = <expr>@<type>.id<(<expr>[,])*
+conditional_stmt = if <expr> then <expr> else <expr> fi
+loop_stmt = while <expr> loop <expr> pool
+block_stmt = { (<expr>;) *}
+let_stmt = let <id> : (<type> [ <- <expr> ][,])* in <expr>]
+case_stmt = case <expr> of (<id> : <type> => <expr>;)* esac
+new_stmt = new <type>
+isvoid_stmt = isvoid <expr>
+
+
+binary_op = <expr> <op> <expr>
+unary_op = <unary_op> <expr>
+
+keywords = [class, inherits, LBRACE, RBRACE, SEMICOLON, COLON, LARROW, LPAREN,
+            RPAREN, COMMA, DOT, AT, if, then, else, fi, while, loop, pool,
+            let, in, case, of, RARROW, esac, new, isvoid]
+
+expr = assignment_stmt
+       | self_dispatch
+       | unqualified_dispatch
+       | parent_dispatch
+       | conditional_stmt
+       | loop_stmt
+       | block_stmt
+       | let_stmt
+       | case_stmt
+       | new_stmt
+       | isvoid_stmt
+       | binary_op
+
+type = r"([A-Z][a-z]*)+"
+id = r"([a-z]_)*"
+
+op =
+unary_op = ~ | not

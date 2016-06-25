@@ -16,7 +16,7 @@ class TokenType(object):
     ]
     _keywords = [
         "class", "inherits", "case", "self", "of", "new", "esac", "let", "in", "SELF_TYPE",
-        "if", "then", "else", "fi", "loop", "pool", "while"
+        "if", "then", "else", "fi", "loop", "pool", "while", "not"
     ]
     _literals = {
         "+": "plus",
@@ -36,7 +36,7 @@ class TokenType(object):
         "<-" : "left_arrow",
         "=>" : "right_arrow",
         "<" : "less_than",
-        "=" : "equals"
+        "=" : "equals",
     }
     _defs = [
         TokenDef("multi_line", re.compile("\(\*(.|[\r\n])*?\*\)"), None),
@@ -45,7 +45,7 @@ class TokenType(object):
         TokenDef("identifier", re.compile("[A-Za-z_][A-Za-z_0-9]*"), None),
         TokenDef("whitespace", re.compile("[\t ]+"), None),
         TokenDef("new_line", "\n", None),
-        TokenDef("integer", re.compile("[0-9]+"), int)
+        TokenDef("integer_literal", re.compile("[0-9]+"), int)
     ]
 
 for pattern, name in TokenType._literals.items():
@@ -53,6 +53,9 @@ for pattern, name in TokenType._literals.items():
 
 for def_ in TokenType._defs:
     setattr(TokenType, def_.name, def_)
+
+for keyword in TokenType._keywords:
+    setattr(TokenType, "keyword_" + keyword, TokenDef("keyword_" + keyword, keyword, None))
 
 class Token(namedtuple("Token", ("type", "raw_value", "value", "slice"))):
     def __repr__(self):
@@ -81,7 +84,7 @@ def next_token(source, start=0):
             if value_filter is not None:
                 match_value = value_filter(match_value)
             if type_ is TokenType.identifier and match_value in TokenType._keywords:
-                type_ = TokenDef("keyword", "keyword", None)
+                type_ = getattr(TokenType, "keyword_" + match_value)
             token = Token(type_, token_text, match_value, slice(start, start + len(token_text)))
 
     return token
