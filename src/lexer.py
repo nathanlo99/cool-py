@@ -15,7 +15,7 @@ class TokenType(object):
         "new_line",
     ]
     _keywords = [
-        "class", "inherits", "case", "self", "of", "new", "esac", "let", "in", "SELF_TYPE",
+        "class", "inherits", "case", "self", "of", "new", "esac", "let", "in",
         "if", "then", "else", "fi", "loop", "pool", "while", "not"
     ]
     _literals = {

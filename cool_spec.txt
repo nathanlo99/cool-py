@@ -1,10 +1,10 @@
 Grammar specification:
 
-class_decl = class <type> [inherits <type>] { feature* };
-feature = attribute_stmt | method_decl
+== class_decl = class <type> [inherits <type>] { feature* };
+== feature = attribute_stmt | method_decl
 
-attribute_stmt  = <id> : <type> [ <- <expr> ];
-method_decl = <id>(<id> : <type>[,])* : { <expr> };
+== attribute_stmt  = <id> : <type> [ <- <expr> ];
+== method_decl = <id>(<id> : <type>[,])* : { <expr> };
 
 assignment_stmt = <id> <- <expr>
 self_dispatch = <expr>.<id>(<expr>[,])*
@@ -18,9 +18,8 @@ case_stmt = case <expr> of (<id> : <type> => <expr>;)* esac
 new_stmt = new <type>
 isvoid_stmt = isvoid <expr>
 
-
-binary_op = <expr> <op> <expr>
-unary_op = <unary_op> <expr>
+== binary_op = <expr> <op> <expr>
+== unary_op = <unary_op> <expr>
 
 keywords = [class, inherits, LBRACE, RBRACE, SEMICOLON, COLON, LARROW, LPAREN,
             RPAREN, COMMA, DOT, AT, if, then, else, fi, while, loop, pool,
@@ -42,5 +41,5 @@ expr = assignment_stmt
 type = r"([A-Z][a-z]*)+"
 id = r"([a-z]_)*"
 
-op =
+op = + | - | * | /
 unary_op = ~ | not
