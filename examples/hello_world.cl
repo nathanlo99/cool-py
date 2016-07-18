@@ -1,6 +1,6 @@
-class Main {
-  random:Int <- 4;
+class Main inherits IO {
+  random: Int <- 4;
   main(): SELF_TYPE {
-    random <- 4
+    random <- 3
   };
 };
